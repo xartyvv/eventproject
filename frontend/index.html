@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Афиша мероприятий — Умный поиск</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">EventFinder</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Главная</a></li>
+                <li><a href="events.html">Мероприятия</a></li>
+                <li id="nav-create" style="display:none;"><a href="create-event.html">Создать</a></li>
+                <li id="nav-ranking" style="display:none;"><a href="ranking.html">Ранжирование</a></li>
+                <li id="nav-favorites" style="display:none;"><a href="favorites.html">Избранное</a></li>
+                <li id="nav-profile" style="display:none;"><a href="profile.html">Профиль</a></li>
+                <li id="nav-login"><a href="login.html">Войти</a></li>
+                <li id="nav-logout" style="display:none;"><a href="#" onclick="logout()">Выйти</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Основной контент -->
+    <main class="container">
+        <section class="hero">
+            <h1>Умный поиск мероприятий</h1>
+            <p>Найдите идеальное событие с помощью метода анализа иерархий (МАИ). Разработка выполнена командой из 2 человек на GoLang и JavaScript.</p>
+            <div class="hero-actions">
+                <a href="events.html" class="btn btn-primary">Смотреть афишу</a>
+                <a href="login.html" class="btn btn-secondary">Войти для ранжирования</a>
+            </div>
+        </section>
+
+        <section class="features">
+            <h2>Как это работает</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>1. Создайте профиль</h3>
+                    <p>Зарегистрируйтесь, чтобы получить доступ к умному поиску и избранным мероприятиям</p>
+                </div>
+                <div class="feature-card">
+                    <h3>2. Оцените критерии</h3>
+                    <p>Сравните важность критериев (стоимость, удалённость, длительность и др.) по шкале от 1 до 9</p>
+                </div>
+                <div class="feature-card">
+                    <h3>3. Получите рейтинг</h3>
+                    <p>Система применит МАИ и ранжирует мероприятия от наиболее к наименее подходящим</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="criteria-info">
+            <h2>15 критериев для анализа</h2>
+            <div class="criteria-list">
+                <span class="criteria-tag">Стоимость билета</span>
+                <span class="criteria-tag">Удалённость</span>
+                <span class="criteria-tag">Длительность</span>
+                <span class="criteria-tag">Рейтинг мероприятия</span>
+                <span class="criteria-tag">Вместимость</span>
+                <span class="criteria-tag">Выходной день</span>
+                <span class="criteria-tag">Онлайн формат</span>
+                <span class="criteria-tag">Возрастное ограничение</span>
+                <span class="criteria-tag">Требуется регистрация</span>
+                <span class="criteria-tag">Рейтинг организатора</span>
+                <span class="criteria-tag">Бесплатное участие</span>
+                <span class="criteria-tag">Время проведения</span>
+                <span class="criteria-tag">Доступность</span>
+                <span class="criteria-tag">Популярность</span>
+                <span class="criteria-tag">Интерактивность</span>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 EventFinder — Сайт с умным поиском мероприятий</p>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

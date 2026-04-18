@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(go *)",
+      "Bash(mkdir *)",
+      "Bash(move *)",
+      "Bash(true)",
+      "Bash(rmdir *)",
+      "Bash(r *)",
+      "Bash(do *)",
+      "Bash(xcopy *)",
+      "Bash(del *)",
+      "Bash(docker-compose *)"
+    ]
+  },
+  "$version": 3
+}
