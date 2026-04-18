@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventFinder MVP - Авторизация</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="container header-inner">
+            <div>
+                <h1>Авторизация</h1>
+            </div>
+            <div class="nav-buttons">
+                <a class="button" href="index.html">Главная</a>
+                <a class="button" href="events.html">Ивенты</a>
+                <a class="button secondary" href="favorites.html">Избранное</a>
+                <a class="button secondary" href="auth.html">Авторизация</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="section" id="auth-section">
+            <div class="section-header">
+                <h2>Вход / Регистрация</h2>
+            </div>
+            <div class="auth-card">
+                <div class="auth-row">
+                    <label for="auth-email">Email</label>
+                    <input id="auth-email" type="email" placeholder="example@mail.com">
+                </div>
+                <div class="auth-row">
+                    <label for="auth-password">Пароль</label>
+                    <input id="auth-password" type="password" placeholder="Пароль">
+                </div>
+                <div class="auth-actions">
+                    <button class="button" id="auth-login">Войти</button>
+                    <button class="button secondary" id="auth-register">Зарегистрироваться</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="main.js"></script>
+</body>
+</html>
