@@ -24,11 +24,12 @@ async function loadFavorites() {
 
         emptyDiv.style.display = 'none';
         data.favorites.forEach(fav => {
-            if (fav.Event) {
-                listDiv.appendChild(createFavoriteCard(fav.Event, fav.id));
+            if (fav.event) {
+                listDiv.appendChild(createFavoriteCard(fav.event, fav.id));
             }
         });
     } catch (error) {
+        loadingDiv.style.display = 'none';
         loadingDiv.textContent = 'Ошибка загрузки избранного: ' + error.message;
     }
 }
@@ -53,6 +54,8 @@ function createFavoriteCard(event, favId) {
         <div class="event-actions">
             <button class="btn btn-secondary btn-small" onclick="removeFromFavorites(${favId}, ${event.id})">
                 Удалить
+            </button>
+        </div>
     `;
 
     return card;
