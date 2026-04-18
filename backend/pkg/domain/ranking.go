@@ -54,32 +54,15 @@ func (RankingProfile) TableName() string {
 	return "ranking_profiles"
 }
 
-// Favorite представляет избранное мероприятие пользователя
-type Favorite struct {
-	ID        uint      `gorm:"primaryKey" json:"id"`
-	UserID    uint      `gorm:"uniqueIndex:idx_user_event;not null" json:"user_id"`
-	EventID   uint      `gorm:"uniqueIndex:idx_user_event;not null" json:"event_id"`
-	CreatedAt time.Time `json:"created_at"`
-
-	// Связи
-	User  *User  `gorm:"foreignKey:UserID" json:"user,omitempty"`
-	Event *Event `gorm:"foreignKey:EventID" json:"event,omitempty"`
-}
-
-// TableName указывает имя таблицы для модели Favorite
-func (Favorite) TableName() string {
-	return "favorites"
-}
-
 // RankedEvent — результат ранжирования мероприятия для конкретного пользователя
 type RankedEvent struct {
-	EventID     uint    `json:"event_id"`
-	Title       string  `json:"title"`
-	Description string  `json:"description"`
-	Date        string  `json:"date"`
-	Location    string  `json:"location"`
-	Category    string  `json:"category"`
-	Score       float64 `json:"score"`       // Итоговый балл по МАИ
-	Rank        int     `json:"rank"`         // Позиция в рейтинге
-	Criteria    []float64 `json:"criteria"`   // Значения всех 15 критериев
+	EventID     uint      `json:"event_id"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Date        string    `json:"date"`
+	Location    string    `json:"location"`
+	Category    string    `json:"category"`
+	Score       float64   `json:"score"`    // Итоговый балл по МАИ
+	Rank        int       `json:"rank"`     // Позиция в рейтинге
+	Criteria    []float64 `json:"criteria"` // Значения всех 15 критериев
 }
