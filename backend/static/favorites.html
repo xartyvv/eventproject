@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Избранное — EventFinder</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">EventFinder</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Главная</a></li>
+                <li><a href="events.html">Мероприятия</a></li>
+                <li><a href="create-event.html">Создать</a></li>
+                <li><a href="ranking.html">Ранжирование</a></li>
+                <li><a href="favorites.html" class="active">Избранное</a></li>
+                <li><a href="profile.html">Профиль</a></li>
+                <li><a href="#" onclick="logout()">Выйти</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <h1>Избранные мероприятия</h1>
+        <div id="favorites-list" class="events-grid"></div>
+        <div id="favorites-loading" class="loading">Загрузка...</div>
+        <div id="favorites-empty" class="empty-state" style="display:none;">
+            <p>У вас пока нет избранных мероприятий</p>
+            <a href="events.html" class="btn btn-primary">Перейти к афише</a>
+        </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/favorites.js"></script>
+</body>
+</html>

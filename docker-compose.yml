@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # PostgreSQL база данных
+  postgres:
+    image: postgres:16-alpine
+    container_name: eventproject_db
+    environment:
+      POSTGRES_DB: eventproject
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: eventproject_secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - eventproject_network
+
+  # Бэкенд приложение (Go)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: eventproject_backend
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: eventproject_secret
+      DB_NAME: eventproject
+      SERVER_PORT: 8080
+      JWT_SECRET: your-super-secret-jwt-key-change-this-in-production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - eventproject_network
+
+  # pgAdmin для удобного управления БД (опционально)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: eventproject_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    profiles:
+      - tools
+    networks:
+      - eventproject_network
+
+volumes:
+  postgres_data:
+
+networks:
+  eventproject_network:
+    driver: bridge
