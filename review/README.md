@@ -1,4 +1,4 @@
-# EventFinder MVP (review)
+# EventFinder (review)
 
 Это упрощённый MVP без Docker, без авторизации и без базы данных.
 
