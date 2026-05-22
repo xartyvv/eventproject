@@ -10,9 +10,9 @@ import (
 
 // RankingService определяет интерфейс для ранжирования мероприятий по МАИ
 type RankingService interface {
-	ComputeWeights(matrix [15][15]float64) ([]float64, error)
+	ComputeWeights(matrix [10][10]float64) ([]float64, error)
 	RankEvents(events []domain.Event, weights []float64) ([]domain.RankedEvent, error)
-	SaveRankingProfile(userID uint, matrix [15][15]float64) (*domain.RankingProfile, error)
+	SaveRankingProfile(userID uint, matrix [10][10]float64) (*domain.RankingProfile, error)
 	GetRankingProfile(userID uint) (*domain.RankingProfile, error)
 	GetRankedEvents(userID uint, category string, start, end string) ([]domain.RankedEvent, error)
 }
@@ -39,8 +39,8 @@ func NewRankingService(
 
 // ComputeWeights вычисляет веса критериев по методу анализа иерархий (МАИ)
 // Использует метод собственных векторов (приближённый через геометрическое среднее)
-func (s *rankingService) ComputeWeights(matrix [15][15]float64) ([]float64, error) {
-	n := 15 // Количество критериев
+func (s *rankingService) ComputeWeights(matrix [10][10]float64) ([]float64, error) {
+	n := 10 // Количество критериев
 
 	// Шаг 1: Вычисляем геометрическое среднее каждой строки
 	geoMeans := make([]float64, n)
@@ -82,7 +82,7 @@ func (s *rankingService) RankEvents(events []domain.Event, weights []float64) ([
 
 	// Шаг 1: Извлекаем матрицу значений критериев для всех мероприятий
 	n := len(events)
-	m := 15 // количество критериев
+	m := 10 // количество критериев
 
 	rawMatrix := make([][]float64, n)
 	for i := 0; i < n; i++ {
@@ -139,20 +139,15 @@ func (s *rankingService) RankEvents(events []domain.Event, weights []float64) ([
 func (s *rankingService) extractCriteria(event domain.Event) []float64 {
 	return []float64{
 		float64(event.Cost),                       // 0: Стоимость (меньше = лучше, инвертируется)
-		float64(event.Distance),                   // 1: Удалённость (меньше = лучше, инвертируется)
-		float64(event.Duration),                   // 2: Длительность
-		float64(event.Rating),                     // 3: Рейтинг мероприятия
-		float64(event.Capacity),                   // 4: Вместимость
-		boolToFloat64(event.IsWeekend),            // 5: Выходной день
-		boolToFloat64(event.IsOnline),             // 6: Онлайн формат
-		float64(event.AgeRestriction),             // 7: Возрастное ограничение (меньше = лучше, инвертируется)
-		boolToFloat64(event.RequiresRegistration), // 8: Требуется регистрация
-		float64(event.OrganizerRating),            // 9: Рейтинг организатора
-		boolToFloat64(event.IsFree),               // 10: Бесплатное участие
-		float64(event.TimeOfDay),                  // 11: Время проведения
-		float64(event.Accessibility),              // 12: Доступность
-		float64(event.Popularity),                 // 13: Популярность
-		float64(event.Interactivity),              // 14: Интерактивность
+		float64(event.Duration),                   // 1: Длительность
+		float64(event.Capacity),                   // 2: Вместимость
+		boolToFloat64(event.IsWeekend),            // 3: Выходной день
+		boolToFloat64(event.IsOnline),             // 4: Онлайн формат
+		float64(event.AgeRestriction),             // 5: Возрастное ограничение (меньше = лучше, инвертируется)
+		boolToFloat64(event.RequiresRegistration), // 6: Требуется регистрация
+		float64(event.OrganizerRating),            // 7: Рейтинг организатора
+		float64(event.TimeOfDay),                  // 8: Время проведения
+		float64(event.Interactivity),              // 9: Интерактивность
 	}
 }
 
@@ -193,7 +188,7 @@ func (s *rankingService) normalizeCriteria(matrix [][]float64, m, n int) [][]flo
 // isInvertedCriterion возвращает true для критериев, где "меньше = лучше"
 func (s *rankingService) isInvertedCriterion(index int) bool {
 	switch index {
-	case 0, 1, 7: // Cost, Distance, AgeRestriction
+	case 0, 5: // Cost, AgeRestriction
 		return true
 	default:
 		return false
@@ -201,7 +196,7 @@ func (s *rankingService) isInvertedCriterion(index int) bool {
 }
 
 // SaveRankingProfile сохраняет матрицу парных сравнений и вычисленные веса
-func (s *rankingService) SaveRankingProfile(userID uint, matrix [15][15]float64) (*domain.RankingProfile, error) {
+func (s *rankingService) SaveRankingProfile(userID uint, matrix [10][10]float64) (*domain.RankingProfile, error) {
 	// Вычисляем веса
 	weights, err := s.ComputeWeights(matrix)
 	if err != nil {

@@ -9,9 +9,11 @@ async function loadProfile() {
 
     if (!usernameEl) return;
 
+    let user = null;
+
     try {
         const data = await apiGet('/auth/me');
-        const user = data.user;
+        user = data.user;
 
         usernameEl.textContent = user.username;
         emailEl.textContent = user.email;
@@ -20,6 +22,76 @@ async function loadProfile() {
         await loadProfileStats(user.id);
     } catch (error) {
         usernameEl.textContent = 'Ошибка загрузки';
+    }
+
+    if (user) {
+        await loadMyEvents(user.id);
+    } else {
+        const listDiv = document.getElementById('my-events');
+        if (listDiv) {
+            listDiv.innerHTML = '<div class="empty-state">Не удалось загрузить профиль. Пожалуйста, войдите снова.</div>';
+        }
+    }
+}
+
+/**
+ * Загружает список мероприятий пользователя
+ */
+async function loadMyEvents(userId) {
+    const listDiv = document.getElementById('my-events');
+    if (!listDiv) return;
+
+    try {
+        listDiv.innerHTML = '';
+        const params = {
+            page: 1,
+            page_size: 100
+        };
+
+        const data = await apiGet('/events/mine', params);
+        const userEvents = data.events || [];
+
+        if (userEvents.length === 0) {
+            listDiv.innerHTML = '<div class="empty-state">Вы ещё не создали ни одного мероприятия.</div>';
+            return;
+        }
+
+        userEvents.forEach(event => {
+            listDiv.appendChild(createUserEventCard(event));
+        });
+    } catch (error) {
+        listDiv.innerHTML = '<div class="empty-state">Ошибка загрузки мероприятий.</div>';
+        console.error('Ошибка загрузки моих мероприятий:', error);
+    }
+}
+
+function createUserEventCard(event) {
+    const card = createEventCard(event);
+    const actionsDiv = card.querySelector('.event-actions');
+    if (actionsDiv) {
+        actionsDiv.innerHTML += `
+            <button class="btn btn-secondary btn-small" onclick="goToEditEvent(${event.id})">Редактировать</button>
+            <button class="btn btn-danger btn-small" onclick="deleteEvent(${event.id})">Удалить</button>
+        `;
+    }
+    return card;
+}
+
+function goToEditEvent(eventId) {
+    window.location.href = `/create-event.html?event_id=${eventId}`;
+}
+
+async function deleteEvent(eventId) {
+    if (!confirm('Вы уверены, что хотите удалить это мероприятие?')) {
+        return;
+    }
+
+    try {
+        await apiDelete(`/events/${eventId}`);
+        await loadProfile();
+    } catch (error) {
+        console.error('Ошибка удаления мероприятия:', error);
+        alert('Не удалось удалить мероприятие: ' + error.message);
     }
 }
 

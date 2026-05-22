@@ -1,25 +1,20 @@
 // ===== Ранжирование МАИ =====
 
-// Названия 15 критериев
+// Названия 10 критериев
 const CRITERIA_NAMES = [
     'Стоимость билета',
-    'Удалённость',
     'Длительность',
-    'Рейтинг мероприятия',
     'Вместимость',
     'Выходной день',
     'Онлайн формат',
     'Возрастное ограничение',
     'Требуется регистрация',
     'Рейтинг организатора',
-    'Бесплатное участие',
     'Время проведения',
-    'Доступность',
-    'Популярность',
     'Интерактивность'
 ];
 
-const CRITERIA_COUNT = 15;
+const CRITERIA_COUNT = 10;
 
 /**
  * Инициализирует матрицу парных сравнений
@@ -77,9 +72,8 @@ function updateSymmetric(i, j) {
  */
 function abbreviate(index) {
     const abbreviations = [
-        'Стоим.', 'Удал.', 'Длит.', 'Рейт.', 'Вмест.',
-        'Выход.', 'Онлайн', 'Возр.', 'Регист.', 'Орган.',
-        'Беспл.', 'Время', 'Доступ.', 'Попул.', 'Интер.'
+        'Стоим.', 'Длит.', 'Вмест.', 'Выход.', 'Онлайн',
+        'Возр.', 'Регист.', 'Орган.', 'Время', 'Интер.'
     ];
     return abbreviations[index - 1] || index;
 }
@@ -153,6 +147,47 @@ function displayWeights(weights, criteria) {
     }
 }
 
+function setMatrixValues(matrix) {
+    for (let i = 0; i < CRITERIA_COUNT; i++) {
+        for (let j = 0; j < CRITERIA_COUNT; j++) {
+            const input = document.getElementById(`m_${i}_${j}`);
+            if (!input) continue;
+
+            if (i === j) {
+                input.value = 1;
+            } else {
+                input.value = matrix[i][j] || 1;
+            }
+        }
+    }
+}
+
+async function loadSavedMatrix() {
+    const errorDiv = document.getElementById('ranking-error');
+    const weightsSection = document.getElementById('weights-section');
+    const rankedSection = document.getElementById('ranked-section');
+
+    try {
+        const data = await apiGet('/ranking/weights');
+
+        if (data.matrix) {
+            setMatrixValues(data.matrix);
+        }
+
+        if (data.weights) {
+            displayWeights(data.weights, data.criteria);
+            weightsSection.style.display = 'block';
+            await loadRankedEvents();
+            rankedSection.style.display = 'block';
+        }
+    } catch (error) {
+        if (!error.message.includes('ranking profile not found')) {
+            errorDiv.textContent = error.message;
+            errorDiv.style.display = 'block';
+        }
+    }
+}
+
 /**
  * Загружает и отображает ранжированные мероприятия
  */
@@ -191,8 +226,8 @@ async function loadRankedEvents() {
  * Авто-заполнение матрицы для тестирования
  */
 function autoFillMatrix() {
-    // Пример: Стоимость самая важная (9), потом рейтинг (7), и т.д.
-    const importance = [9, 5, 4, 7, 3, 2, 2, 3, 2, 6, 4, 3, 3, 4, 5];
+    // Пример: Стоимость самая важная (9), потом остальные критерии по важности
+    const importance = [9, 4, 3, 2, 2, 3, 2, 6, 3, 5];
 
     for (let i = 0; i < CRITERIA_COUNT; i++) {
         for (let j = i + 1; j < CRITERIA_COUNT; j++) {
@@ -208,8 +243,9 @@ function autoFillMatrix() {
 }
 
 // Инициализация при загрузке страницы
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     if (document.getElementById('matrix-container')) {
         initMatrix();
+        await loadSavedMatrix();
     }
 });

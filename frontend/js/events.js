@@ -55,8 +55,6 @@ function createEventCard(event) {
 
     const criteria = [];
     if (event.cost > 0) criteria.push(`${event.cost}₽`);
-    if (event.is_free) criteria.push('Бесплатно');
-    if (event.distance > 0) criteria.push(`${event.distance} км`);
     if (event.duration > 0) criteria.push(`${event.duration}ч`);
     if (event.is_online) criteria.push('Онлайн');
     if (event.is_weekend) criteria.push('Выходной');
@@ -76,6 +74,41 @@ function createEventCard(event) {
     `;
 
     return card;
+}
+
+function formatDateForInput(dateString) {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+async function loadEventForEdit(eventId) {
+    const data = await apiGet(`/events/${eventId}`);
+    const event = data.event;
+    if (!event) return;
+
+    document.getElementById('event_id').value = event.id;
+    document.getElementById('title').value = event.title || '';
+    document.getElementById('description').value = event.description || '';
+    document.getElementById('date').value = formatDateForInput(event.date);
+    document.getElementById('location').value = event.location || '';
+    document.getElementById('category').value = event.category || 'concert';
+    document.getElementById('cost').value = event.cost || 0;
+    document.getElementById('duration').value = event.duration || 0;
+    document.getElementById('capacity').value = event.capacity || 0;
+    document.getElementById('is_weekend').checked = !!event.is_weekend;
+    document.getElementById('is_online').checked = !!event.is_online;
+    document.getElementById('age_restriction').value = event.age_restriction || 0;
+    document.getElementById('requires_registration').checked = !!event.requires_registration;
+    document.getElementById('organizer_rating').value = event.organizer_rating || 0;
+    document.getElementById('time_of_day').value = event.time_of_day || 3;
+    document.getElementById('interactivity').value = event.interactivity || 0;
+    document.querySelector('h1').textContent = 'Редактировать мероприятие';
+    document.querySelector('button[type="submit"]').textContent = 'Сохранить изменения';
 }
 
 /**
@@ -158,19 +191,31 @@ async function addToFavorite(eventId) {
 /**
  * Обрабатывает форму создания мероприятия
  */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     // Загрузка мероприятий на странице events.html
     if (document.getElementById('events-list')) {
         loadEvents();
     }
 
-    // Форма создания мероприятия
+    // Форма создания/редактирования мероприятия
     const createForm = document.getElementById('create-event-form');
     if (createForm) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventId = urlParams.get('event_id');
+
+        if (eventId) {
+            try {
+                await loadEventForEdit(eventId);
+            } catch (error) {
+                console.error('Ошибка загрузки мероприятия для редактирования:', error);
+            }
+        }
+
         createForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const errorDiv = document.getElementById('form-error');
             const successDiv = document.getElementById('form-success');
+            const currentEventId = document.getElementById('event_id').value;
 
             try {
                 const formData = {
@@ -180,27 +225,28 @@ document.addEventListener('DOMContentLoaded', () => {
                     location: document.getElementById('location').value,
                     category: document.getElementById('category').value,
                     cost: parseFloat(document.getElementById('cost').value) || 0,
-                    distance: parseFloat(document.getElementById('distance').value) || 0,
                     duration: parseFloat(document.getElementById('duration').value) || 2,
-                    rating: parseFloat(document.getElementById('rating').value) || 5,
                     capacity: parseFloat(document.getElementById('capacity').value) || 100,
                     is_weekend: document.getElementById('is_weekend').checked,
                     is_online: document.getElementById('is_online').checked,
                     age_restriction: parseInt(document.getElementById('age_restriction').value) || 0,
                     requires_registration: document.getElementById('requires_registration').checked,
                     organizer_rating: parseFloat(document.getElementById('organizer_rating').value) || 5,
-                    is_free: document.getElementById('is_free').checked,
                     time_of_day: parseInt(document.getElementById('time_of_day').value) || 3,
-                    accessibility: parseFloat(document.getElementById('accessibility').value) || 5,
-                    popularity: parseFloat(document.getElementById('popularity').value) || 0,
                     interactivity: parseFloat(document.getElementById('interactivity').value) || 5
                 };
 
-                await apiPost('/events/create', formData);
-                successDiv.textContent = 'Мероприятие успешно создано!';
+                if (currentEventId) {
+                    await apiPut(`/events/${currentEventId}`, formData);
+                    successDiv.textContent = 'Мероприятие успешно обновлено!';
+                } else {
+                    await apiPost('/events/create', formData);
+                    successDiv.textContent = 'Мероприятие успешно создано!';
+                    createForm.reset();
+                }
+
                 successDiv.style.display = 'block';
                 errorDiv.style.display = 'none';
-                createForm.reset();
             } catch (error) {
                 errorDiv.textContent = error.message;
                 errorDiv.style.display = 'block';

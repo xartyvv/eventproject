@@ -24,7 +24,7 @@ func NewRankingHandler(rankingService service.RankingService, authService servic
 
 // SaveMatrixRequest — запрос на сохранение матрицы парных сравнений
 type SaveMatrixRequest struct {
-	Matrix [15][15]float64 `json:"matrix"`
+	Matrix [10][10]float64 `json:"matrix"`
 }
 
 // SaveMatrix сохраняет матрицу парных сравнений и вычисляет веса
@@ -103,10 +103,13 @@ func (h *RankingHandler) GetWeights(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var weights []float64
+	var matrix [10][10]float64
 	json.Unmarshal([]byte(profile.Weights), &weights)
+	json.Unmarshal([]byte(profile.PairwiseMatrix), &matrix)
 
 	sendJSON(w, map[string]interface{}{
 		"weights":  weights,
+		"matrix":   matrix,
 		"criteria": domain.CriterionNames,
 	}, http.StatusOK)
 }
@@ -148,13 +151,13 @@ func (h *RankingHandler) GetRankedEvents(w http.ResponseWriter, r *http.Request)
 }
 
 // isValidMatrix проверяет корректность матрицы парных сравнений
-func isValidMatrix(matrix [15][15]float64) bool {
-	for i := 0; i < 15; i++ {
+func isValidMatrix(matrix [10][10]float64) bool {
+	for i := 0; i < 10; i++ {
 		// Диагональ должна быть равна 1
 		if matrix[i][i] != 1.0 {
 			return false
 		}
-		for j := 0; j < 15; j++ {
+		for j := 0; j < 10; j++ {
 			if i == j {
 				continue
 			}

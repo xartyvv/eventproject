@@ -40,6 +40,22 @@ async function apiPost(endpoint, data) {
 }
 
 /**
+ * Выполняет PUT запрос к API
+ * @param {string} endpoint - endpoint API
+ * @param {Object} data - тело запроса
+ * @returns {Promise<Object>}
+ */
+async function apiPut(endpoint, data) {
+    const response = await fetch(`${API_BASE}${endpoint}`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+    });
+
+    return handleResponse(response);
+}
+
+/**
  * Выполняет DELETE запрос к API
  * @param {string} endpoint - endpoint API
  * @returns {Promise<Object>}

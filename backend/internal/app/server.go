@@ -52,11 +52,14 @@ func NewServer() *Server {
 	router.HandleFunc("/api/events", eventHandler.GetEvents)
 	router.HandleFunc("/api/events/create", eventHandler.CreateEvent)
 	router.HandleFunc("/api/events/filter", eventHandler.GetEventsByFilters)
+	router.HandleFunc("/api/events/mine", eventHandler.GetMyEvents)
 	router.HandleFunc("/api/events/", func(w http.ResponseWriter, r *http.Request) {
-		// Разделяем GET /api/events/:id и DELETE /api/events/:id
+		// Разделяем GET /api/events/:id, PUT /api/events/:id и DELETE /api/events/:id
 		switch r.Method {
 		case http.MethodGet:
 			eventHandler.GetEventByID(w, r)
+		case http.MethodPut:
+			eventHandler.UpdateEvent(w, r)
 		case http.MethodDelete:
 			eventHandler.DeleteEvent(w, r)
 		default:

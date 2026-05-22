@@ -209,6 +209,127 @@ func (h *EventHandler) GetEventsByFilters(w http.ResponseWriter, r *http.Request
 	}, http.StatusOK)
 }
 
+// GetMyEvents возвращает мероприятия текущего пользователя
+// GET /api/events/mine
+func (h *EventHandler) GetMyEvents(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	tokenString := extractToken(r)
+	if tokenString == "" {
+		sendError(w, "authorization required", http.StatusUnauthorized)
+		return
+	}
+
+	user, err := h.authService.ValidateToken(tokenString)
+	if err != nil {
+		sendError(w, "invalid token", http.StatusUnauthorized)
+		return
+	}
+
+	events, err := h.eventService.GetByCreatorID(user.ID)
+	if err != nil {
+		sendError(w, "failed to get events", http.StatusInternalServerError)
+		return
+	}
+
+	sendJSON(w, map[string]interface{}{
+		"events": events,
+		"total":  len(events),
+	}, http.StatusOK)
+}
+
+// UpdateEvent обновляет мероприятие (только создатель)
+// PUT /api/events/:id
+func (h *EventHandler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	tokenString := extractToken(r)
+	if tokenString == "" {
+		sendError(w, "authorization required", http.StatusUnauthorized)
+		return
+	}
+
+	user, err := h.authService.ValidateToken(tokenString)
+	if err != nil {
+		sendError(w, "invalid token", http.StatusUnauthorized)
+		return
+	}
+
+	idStr := r.URL.Path[len("/api/events/"):]
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		sendError(w, "invalid event ID", http.StatusBadRequest)
+		return
+	}
+
+	existingEvent, err := h.eventService.GetByID(uint(id))
+	if err != nil {
+		sendError(w, "event not found", http.StatusNotFound)
+		return
+	}
+
+	if existingEvent.CreatorID != user.ID {
+		sendError(w, "only the creator can update this event", http.StatusForbidden)
+		return
+	}
+
+	var req CreateEventRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		sendError(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	eventDate, err := parseDate(req.Date)
+	if err != nil {
+		sendError(w, "invalid date format, use YYYY-MM-DD, YYYY-MM-DD HH:MM or YYYY-MM-DDTHH:MM", http.StatusBadRequest)
+		return
+	}
+
+	existingEvent.Title = req.Title
+	existingEvent.Description = req.Description
+	existingEvent.Date = eventDate
+	existingEvent.Location = req.Location
+	existingEvent.Category = req.Category
+	existingEvent.Cost = req.Cost
+	existingEvent.Duration = req.Duration
+	existingEvent.Capacity = req.Capacity
+	existingEvent.IsWeekend = req.IsWeekend
+	existingEvent.IsOnline = req.IsOnline
+	existingEvent.AgeRestriction = req.AgeRestriction
+	existingEvent.RequiresRegistration = req.RequiresRegistration
+	existingEvent.OrganizerRating = req.OrganizerRating
+	existingEvent.TimeOfDay = req.TimeOfDay
+	existingEvent.Interactivity = req.Interactivity
+
+	updatedEvent, err := h.eventService.Update(existingEvent)
+	if err != nil {
+		sendError(w, "failed to update event", http.StatusInternalServerError)
+		return
+	}
+
+	sendJSON(w, map[string]interface{}{
+		"message": "event updated successfully",
+		"event":   updatedEvent,
+	}, http.StatusOK)
+}
+
+func parseDate(dateStr string) (time.Time, error) {
+	eventDate, err := time.Parse("2006-01-02T15:04", dateStr)
+	if err != nil {
+		eventDate, err = time.Parse("2006-01-02 15:04", dateStr)
+		if err != nil {
+			eventDate, err = time.Parse("2006-01-02", dateStr)
+		}
+	}
+	return eventDate, err
+}
+
 // DeleteEvent удаляет мероприятие (только создатель)
 // DELETE /api/events/:id
 func (h *EventHandler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
