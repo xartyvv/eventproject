@@ -42,6 +42,8 @@ services:
         condition: service_healthy
     networks:
       - eventproject_network
+    volumes:
+      - ./backend/static:/app/static
 
   # pgAdmin для удобного управления БД (опционально)
   pgadmin:
