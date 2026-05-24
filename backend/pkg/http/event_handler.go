@@ -32,19 +32,14 @@ type CreateEventRequest struct {
 	Location             string  `json:"location"`
 	Category             string  `json:"category"`
 	Cost                 float64 `json:"cost"`
-	Distance             float64 `json:"distance"`
 	Duration             float64 `json:"duration"`
-	Rating               float64 `json:"rating"`
 	Capacity             float64 `json:"capacity"`
 	IsWeekend            bool    `json:"is_weekend"`
 	IsOnline             bool    `json:"is_online"`
 	AgeRestriction       int     `json:"age_restriction"`
 	RequiresRegistration bool    `json:"requires_registration"`
 	OrganizerRating      float64 `json:"organizer_rating"`
-	IsFree               bool    `json:"is_free"`
 	TimeOfDay            int     `json:"time_of_day"`
-	Accessibility        float64 `json:"accessibility"`
-	Popularity           float64 `json:"popularity"`
 	Interactivity        float64 `json:"interactivity"`
 }
 
@@ -96,19 +91,14 @@ func (h *EventHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 		Category:             req.Category,
 		CreatorID:            user.ID,
 		Cost:                 req.Cost,
-		Distance:             req.Distance,
 		Duration:             req.Duration,
-		Rating:               req.Rating,
 		Capacity:             req.Capacity,
 		IsWeekend:            req.IsWeekend,
 		IsOnline:             req.IsOnline,
 		AgeRestriction:       req.AgeRestriction,
 		RequiresRegistration: req.RequiresRegistration,
 		OrganizerRating:      req.OrganizerRating,
-		IsFree:               req.IsFree,
 		TimeOfDay:            req.TimeOfDay,
-		Accessibility:        req.Accessibility,
-		Popularity:           req.Popularity,
 		Interactivity:        req.Interactivity,
 	}
 

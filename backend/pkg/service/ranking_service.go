@@ -97,7 +97,7 @@ func (s *rankingService) RankEvents(events []domain.Event, weights []float64) ([
 	for i := 0; i < n; i++ {
 		score := 0.0
 		for j := 0; j < m; j++ {
-			// Для "плохих" критериев (cost, distance, ageRestriction) инвертируем
+			// Для "плохих" критериев (cost, ageRestriction) инвертируем
 			inverted := s.isInvertedCriterion(j)
 			value := normalizedMatrix[i][j]
 			if inverted {
@@ -135,7 +135,7 @@ func (s *rankingService) RankEvents(events []domain.Event, weights []float64) ([
 	return ranked, nil
 }
 
-// extractCriteria извлекает 15 критериев из мероприятия
+// extractCriteria извлекает 10 критериев из мероприятия
 func (s *rankingService) extractCriteria(event domain.Event) []float64 {
 	return []float64{
 		float64(event.Cost),                       // 0: Стоимость (меньше = лучше, инвертируется)
